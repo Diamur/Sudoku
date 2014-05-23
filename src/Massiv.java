@@ -1,17 +1,25 @@
+
 import java.util.Scanner;
 
 public class Massiv {
 
     private int kol = 9;
-    //  private int iteration = 0;
+    private int iteration = 0;
     private int step =0;
-    private int[][] position = new int[kol*kol][];
-    private int[][] constNamber = new int[kol*kol][];
+    private int wag;
+    private int ihome=0;
+    private int iend=0;
+    private int khome=0;
+    private int kend=0;
+
+    private int[][] posnull = new int[81][];
+    private int[][] position = new int[100][];
+    private int[][] constNamber = new int[100][2];
     private int mas[][] = new int[kol][kol];
-    private int[][][] masbuf = new int[kol*kol][kol][kol];
+    private int[][][] masbuf = new int[100][][];
     private int[] numbernull = {0,1,2,3,4,5,6,7,8};
     private int[] number = {1,2,3,4,5,6,7,8,9};
-    private int[][] blacklist = new int[kol*kol][kol];
+    private int[][] blacklist = new int[100][kol];
     private int[][] blokone = {{0,1,2},{0,1,2}};
     private int[][] bloktwo = {{0,1,2},{3,4,5}};
     private int[][] blokthree = {{0,1,2},{6,7,8}};
@@ -34,22 +42,39 @@ public class Massiv {
 
     public void ini() {
         int n = 0;
-
-        for(int i = 0 ; i < this.kol*this.kol; i++) {
-            this.position[n] = new int[]{0,0,0};
-            this.masbuf[n] = mas;
-            this.constNamber[n] = new int[]{-1,-1};
-            n++;
-
-        }
-
+        while (n<100)
+            {
+                this.position[n] = new int[]{0,0,0};
+                this.masbuf[n] = mas;
+                this.constNamber[n] = new int[]{-1,-1};
+                n++;
+            }
     }
 
+
+
+// есть ли пустая ячейка в массиве - !!!!!!!!!пока не используем функция!!!!!!!!
+
+public boolean verifyMasEmpty(int iteration ){
+for(int i: this.numbernull)
+for (int k: this.numbernull)
+if(this.masbuf[iteration][i][k] == 0) return true;
+return false;
+}
+
+
+// запрос "Можно заполнять" или возврат к предыдущей итерации с приращением значения
+
+    public boolean verifyMasFill(int i, int k, int iteration){
+        if(verifyCellEmpty(i,k,iteration) && getNamber(i,k,iteration) != -1 ) return true; // пустая ячейка
+        return false;
+    }
 
 // проверяем пустая ли выбранная ячейка n
 
     public boolean verifyCellEmpty(int i,int k, int iteration){
-        return this.masbuf[iteration][i][k] == 0;
+        if(this.masbuf[iteration][i][k] == 0) return true;
+        return false;
     }
 
     //устанавливаем цифру в черный список по данной итерации
@@ -59,13 +84,15 @@ public class Massiv {
                 this.blacklist[iteration][num] = value;
                 return;
             }
+
+        return;
     }
     // делаем сброс блэклиста итерации, который на два шага впереди текущего
 
     public void toNullBlacklist(int i, int k, int iteration){
         for (int num : this.numbernull)
             if( verifyConstNamber(i,k) ) this.blacklist[iteration][num] = 0;
-        //  return;
+        return;
     }
 
     // Проверяем цифру в черном списке по данной итерации
@@ -79,16 +106,19 @@ public class Massiv {
     // вычислить цифру можно использовать в данной ячейке или -1 - нельзя
     public int getNamber(int ind, int kin, int iteration ){
         for (int value : this.number)
+            // if(this.position[iteration][2] < value )//|| this.position[iteration][2] != 9 )
             if(verifyNamber(ind, kin, value, iteration))return value;
         return -1;
     }
 
     // проверяем выбранную цифру в строке столбце и блоке
     public boolean verifyNamber(int ind,int kin,int value,int iteration){
-        return verifyNamberLine(ind, value, iteration)
-                && verifyNabmerColumn(kin, value, iteration)
-                && verifyNabmerBlok(ind, kin, value, iteration)
-                && verifyBlackList(value, iteration);
+        if(verifyNamberLine(ind, value, iteration) == true
+                && verifyNabmerColumn(kin, value, iteration)== true
+                && verifyNabmerBlok(ind, kin, value, iteration) == true
+                && verifyBlackList(value,iteration) == true)
+            return true;
+        return false;
     }
 // проверяем выбранную цифру в строке
 
@@ -179,38 +209,96 @@ public class Massiv {
     }
 
 
+
 // заполняем массив цифрами
 
+//    public void setMasFill(int iteration){
+//        int value;
+//        // this.iteration = iteration;
+//        while (this.verifyMasEmpty(iteration)) {
+//            for (int i : this.numbernull) {
+//                for (int k : this.numbernull) {
+//                    if (this.verifyCellEmpty(i, k, iteration)) {
+//                        if (getNamber(i, k, iteration) > 0) {
+//                            value = getNamber(i, k, iteration);
+//                            this.position[iteration] = new int[]{i, k, value};
+//                            this.masbuf[iteration][i][k] = value;
+//                            setBlacklist(value, iteration);
+//
+//                            this.printMassiv(iteration);
+//
+//                            this.wag++;
+//                            iteration++;
+//                            if (iteration > 0) this.masbuf[iteration] = this.masbuf[iteration - 1];
+//                            setMasFill(iteration);
+//                        } else if (iteration > 0) {
+//                            toNullBlacklist(i, k, iteration);
+//                            iteration--;
+//                            this.masbuf[iteration][this.position[iteration][0]][this.position[iteration][1]] = 0;
+//                            //  this.printMassiv(iteration);
+//                            setMasFill(iteration);
+//                        }
+//                    }
+//                }
+//            }
+//            this.mas = this.masbuf[iteration];
+//        }
+//    }
+
+
     public void setMasFill(int iteration){
-        int value ;
-        for(int i: this.numbernull) {
-            for (int k : this.numbernull){
-                if(this.verifyCellEmpty(i,k,iteration)){
-                    if(getNamber(i,k,iteration)>0) {
-                        value = getNamber(i,k,iteration);
-                        this.position[iteration] = new int[]{i,k,value};
-                        this.masbuf[iteration][i][k] = value;
-                        setBlacklist(value, iteration);
 
-                        // this.printMassiv(iteration);
+        for (int i : this.numbernull) {
+                for (int k : this.numbernull) {
 
-                        iteration++ ;
-                        this.masbuf[iteration] = this.masbuf[iteration-1];
-                        setMasFill(iteration);
+                    if (verifyCellEmpty(i, k, iteration)) {
+
+                        if(getPos(i,k) == 1){
+
+                        }else if(getPos(i,k) == 3){
+
+                        }else {
+
+                        }
+
                     }
-                    else
-                    if(iteration > 0) {
-                        toNullBlacklist(i,k,iteration);
-                        iteration--;
-                        this.masbuf[iteration][this.position[iteration][0]][this.position[iteration][1]] = 0;
-                        //  this.printMassiv(iteration);
-                        setMasFill(iteration);
-                    }
+
+
+
+                }
+        }
+
+    }
+
+
+
+    public void setPos(){
+        int n = 0;
+        for (int i: this.numbernull)
+            for (int k: this.numbernull){
+                if( n == 0  && this.mas[i][k] == 0){
+                    this.ihome = i;
+                    this.khome = k;
+                    n++;
+                }
+                if( n != 0 && this.mas[i][k] == 0 ){
+                    this.iend = i;
+                    this.kend = k;
                 }
             }
-        }
-        this.mas = this.masbuf[iteration];
     }
+
+    public int getPos(int i, int k){
+
+        if (this.ihome == i && this.khome == k) {
+            return 1;
+        } else
+              if (this.iend == i && this.kend == k) {
+                  return 3;
+              } else return 2;
+    }
+
+
 
 
     public void printStroka(int ind){
@@ -221,15 +309,15 @@ public class Massiv {
         }
     }
     // печать массива
-//    public void printMassiv(int iteration){
-//        System.out.println("iteration: " + iteration);
-//        for (int i : this.numbernull) {
-//            for (int k : this.numbernull)
-//                System.out.print(this.masbuf[iteration][i][k] + "\t" );
-//            System.out.println("");
-//        }
-//        System.out.println("");
-//    }
+    public void printMassiv(int iteration){
+        System.out.println("iteration: " + iteration + "wag: " + this.wag);
+        for (int i : this.numbernull) {
+            for (int k : this.numbernull)
+                System.out.print(this.masbuf[iteration][i][k] + "\t" );
+            System.out.println("");
+        }
+        System.out.println("");
+    }
 
     public void printRezult(){
         System.out.println("Решение: ");
@@ -240,7 +328,6 @@ public class Massiv {
         }
         System.out.println("");
     }
-
     // Устанавливаем неизменяемые константы индекса массива
 
     public void setConstNamber(int i, int k) {
@@ -249,6 +336,8 @@ public class Massiv {
             this.constNamber[this.step] = new int[]{i,k};
             this.step++;
         }
+
+        return;
     }
     // Проверяем константу по индексу
 
@@ -264,7 +353,7 @@ public class Massiv {
     public void setMas() {
 
         Scanner in = new Scanner(System.in);
-        System.out.println("Введите цифры судоку:");
+        System.out.println("Введите исходные данные  судоку: ");
         for (int i: this.numbernull) {
             for (int k : this.numbernull) {
                 this.mas[i][k] = in.nextInt();
@@ -272,9 +361,9 @@ public class Massiv {
             }
             this.printStroka(i);
             System.out.println("\n");
-
         }
         this.masbuf[0] = this.mas;
+        this.setPos();
     }
 
 }
