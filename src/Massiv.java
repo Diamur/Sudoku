@@ -1,10 +1,8 @@
-
 import java.util.Scanner;
 
 public class Massiv {
 
     private int kol = 9;
-    private int iteration = 0;
     private int step =0;
     private int wag;
     private int ihome=0;
@@ -12,9 +10,8 @@ public class Massiv {
     private int khome=0;
     private int kend=0;
 
-    private int[][] posnull = new int[81][];
     private int[][] position = new int[100][];
-    private int[][] constNamber = new int[100][2];
+    private int[][] constNamber = new int[81][2];
     private int mas[][] = new int[kol][kol];
     private int[][][] masbuf = new int[100][][];
     private int[] numbernull = {0,1,2,3,4,5,6,7,8};
@@ -31,46 +28,37 @@ public class Massiv {
     private int[][] bloknine = {{6,7,8},{6,7,8}};
 
 
-// Конструктор класса
+    // Конструктор класса
 
     public Massiv(int kol) {
         this.kol = kol;
         this.ini();
     }
 
-// Инициализация массивов позиции
+    // Инициализация индексов исходных значений массива в качестве констант НЕПРИКАСАЕМЫЕ)
 
     public void ini() {
         int n = 0;
-        while (n<100)
-            {
-                this.position[n] = new int[]{0,0,0};
-                this.masbuf[n] = mas;
-                this.constNamber[n] = new int[]{-1,-1};
-                n++;
-            }
+        while (n < getCountNoEmptyCell())
+        {
+            this.masbuf[n] = mas;
+            this.constNamber[n] = new int[]{-1,-1};
+            n++;
+        }
+    }
+
+    // Взять количество исходных цифр в массиве
+
+    public int getCountNoEmptyCell(){
+        int count = 0;
+        for (int i: this.numbernull)
+            for (int k: this.numbernull)
+                if(this.mas[i][k]  !=0 ) count ++;
+        return count;
     }
 
 
-
-// есть ли пустая ячейка в массиве - !!!!!!!!!пока не используем функция!!!!!!!!
-
-public boolean verifyMasEmpty(int iteration ){
-for(int i: this.numbernull)
-for (int k: this.numbernull)
-if(this.masbuf[iteration][i][k] == 0) return true;
-return false;
-}
-
-
-// запрос "Можно заполнять" или возврат к предыдущей итерации с приращением значения
-
-    public boolean verifyMasFill(int i, int k, int iteration){
-        if(verifyCellEmpty(i,k,iteration) && getNamber(i,k,iteration) != -1 ) return true; // пустая ячейка
-        return false;
-    }
-
-// проверяем пустая ли выбранная ячейка n
+    // проверяем пустая ли выбранная ячейка n
 
     public boolean verifyCellEmpty(int i,int k, int iteration){
         if(this.masbuf[iteration][i][k] == 0) return true;
@@ -89,7 +77,7 @@ return false;
     }
     // делаем сброс блэклиста итерации, который на два шага впереди текущего
 
-    public void toNullBlacklist(int i, int k, int iteration){
+    public void setToNullBlacklist(int i, int k, int iteration){
         for (int num : this.numbernull)
             if( verifyConstNamber(i,k) ) this.blacklist[iteration][num] = 0;
         return;
@@ -103,31 +91,22 @@ return false;
         return true;
     }
 
-    // вычислить цифру можно использовать в данной ячейке или -1 - нельзя
-    public int getNamber(int ind, int kin, int iteration ){
-        for (int value : this.number)
-            // if(this.position[iteration][2] < value )//|| this.position[iteration][2] != 9 )
-            if(verifyNamber(ind, kin, value, iteration))return value;
-        return -1;
-    }
 
     // проверяем выбранную цифру в строке столбце и блоке
+
     public boolean verifyNamber(int ind,int kin,int value,int iteration){
-        if(verifyNamberLine(ind, value, iteration) == true
-                && verifyNabmerColumn(kin, value, iteration)== true
-                && verifyNabmerBlok(ind, kin, value, iteration) == true
-                && verifyBlackList(value,iteration) == true)
-            return true;
-        return false;
+        return verifyNamberLine(ind, value, iteration) == true
+                && verifyNabmerColumn(kin, value, iteration) == true
+                && verifyNabmerBlok(ind, kin, value, iteration) == true;
     }
-// проверяем выбранную цифру в строке
+
+    // проверяем выбранную цифру в строке
 
     public boolean verifyNamberLine(int ind, int value,int iteration){
         for(int k = 0; k < kol; k++ )
             if(this.masbuf[iteration][ind][k] == value)return false;
         return true;
     }
-
 
 // проверяем выбранную цифру в столбце
 
@@ -140,6 +119,7 @@ return false;
 
     // Устанавливаем номер блока
     public int getNamberBlok(int i,int k){
+
         if (i >=0 && i < 3 && k >=0 && k < 3) return 1;
         if (i >=0 && i < 3 && k >2 && k < 6) return 2;
         if (i >=0 && i < 3 && k >5 && k < 9) return 3;
@@ -155,7 +135,6 @@ return false;
 // проверяем выбранную цифру в блоке 3x3
 
     private boolean verifyNabmerBlok(int ind,int kin, int value, int iteration){
-
 
         switch (getNamberBlok(ind, kin)) {
             case 1:
@@ -208,70 +187,30 @@ return false;
 
     }
 
-
-
-// заполняем массив цифрами
-
-//    public void setMasFill(int iteration){
-//        int value;
-//        // this.iteration = iteration;
-//        while (this.verifyMasEmpty(iteration)) {
-//            for (int i : this.numbernull) {
-//                for (int k : this.numbernull) {
-//                    if (this.verifyCellEmpty(i, k, iteration)) {
-//                        if (getNamber(i, k, iteration) > 0) {
-//                            value = getNamber(i, k, iteration);
-//                            this.position[iteration] = new int[]{i, k, value};
-//                            this.masbuf[iteration][i][k] = value;
-//                            setBlacklist(value, iteration);
-//
-//                            this.printMassiv(iteration);
-//
-//                            this.wag++;
-//                            iteration++;
-//                            if (iteration > 0) this.masbuf[iteration] = this.masbuf[iteration - 1];
-//                            setMasFill(iteration);
-//                        } else if (iteration > 0) {
-//                            toNullBlacklist(i, k, iteration);
-//                            iteration--;
-//                            this.masbuf[iteration][this.position[iteration][0]][this.position[iteration][1]] = 0;
-//                            //  this.printMassiv(iteration);
-//                            setMasFill(iteration);
-//                        }
-//                    }
-//                }
-//            }
-//            this.mas = this.masbuf[iteration];
-//        }
-//    }
-
-
+    //-------------------------------------------------------------------------------
     public void setMasFill(int iteration){
 
-        for (int i : this.numbernull) {
-                for (int k : this.numbernull) {
-
-                    if (verifyCellEmpty(i, k, iteration)) {
-
-                        if(getPos(i,k) == 1){
-
-                        }else if(getPos(i,k) == 3){
-
-                        }else {
-
+        for (int i  : this.numbernull)
+            for (int k : this.numbernull)
+                if (verifyCellEmpty(i, k, iteration))
+                    if(getPos(i,k) == 1){                                   // Проход по 1 варианту
+                        if(getPassOne(i,k,iteration)){
+                            System.out.println("Решений нет");
                         }
+                    }else
+                        if(getPos(i,k) == 3){                               // Проход  по 3 варианту
 
-                    }
+                            getPassThree(i,k,iteration);
 
+                        }else getPassTwo(i,k,iteration);                      // Проход по 2 варианту
 
-
-                }
-        }
-
+        return;
     }
+//---------------------------------------------------------------------------------
 
 
 
+    // Устанавливаем путь для прохода номеров
     public void setPos(){
         int n = 0;
         for (int i: this.numbernull)
@@ -288,16 +227,175 @@ return false;
             }
     }
 
+
+    // Берем путь для прохода номеров
+
     public int getPos(int i, int k){
 
         if (this.ihome == i && this.khome == k) {
             return 1;
         } else
-              if (this.iend == i && this.kend == k) {
-                  return 3;
-              } else return 2;
+        if (this.iend == i && this.kend == k) {
+            return 3;
+        } else return 2;
     }
 
+
+
+    // Проход по варианту №1
+
+    public boolean  getPassOne(int i, int k, int iteration){
+
+        for (int value: this.number) {
+            if (value == 9) {
+                // Ветка 1
+                if (verifyBlackList(value, iteration)) {
+                    setBlacklist(value, iteration);
+                    if (verifyNamber(i, k, value, iteration)) {
+                        this.masbuf[iteration][i][k] = value;
+                        this.position[iteration] = new int[]{i,k};
+                        this.wag++;
+                        printMassiv(iteration);
+                        this.masbuf[++iteration] = this.masbuf[iteration-1];
+                        setMasFill(iteration);
+                        return false;
+
+                    }
+                } else {
+                    // Ветка 2
+                    return true;
+                }
+            } else {
+                // Ветка 3
+                if (verifyBlackList(value, iteration)) {
+                    setBlacklist(value, iteration);
+                    if (verifyNamber(i, k, value, iteration)) {
+                        this.masbuf[iteration][i][k] = value;
+                        this.position[iteration] = new int[]{i,k};
+                        this.wag++;
+                        printMassiv(iteration);
+                        this.masbuf[++iteration] = this.masbuf[iteration-1];
+                        setMasFill(iteration);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+
+    // Проход по варианту №2
+
+    public void   getPassTwo(int i, int k, int iteration){
+        for (int value: this.number) {
+            if (value == 9) {
+                // Ветка 1
+                if (verifyBlackList(value, iteration)) {
+                    setBlacklist(value, iteration);
+                    if (verifyNamber(i, k, value, iteration)) {
+                        this.masbuf[iteration][i][k] = value;
+                        this.position[iteration] = new int[]{i,k};
+                        this.wag++;
+                        printMassiv(iteration);
+                        this.masbuf[++iteration] = this.masbuf[iteration-1];
+                        setMasFill(iteration);
+                        return;
+                    }else {
+                        // Ветка 2
+                        setToNullBlacklist(i, k, iteration);
+                        this.masbuf[iteration][i][k] = 0;
+                        this.masbuf[iteration-1][i][k] = 0;
+                        this.masbuf[iteration-1][this.position[iteration-1][0]][this.position[iteration-1][1]] = 0;
+                        this.wag++;
+                        setMasFill(--iteration);
+                        return;
+
+                    }
+                } else {
+                    // Ветка 2
+                    setToNullBlacklist(i, k, iteration);
+                    this.masbuf[iteration][i][k] = 0;
+                    this.masbuf[iteration-1][this.position[iteration-1][0]][this.position[iteration-1][1]] = 0;
+                    this.wag++;
+                    setMasFill(--iteration);
+                    return;
+
+                }
+            } else {
+                // Ветка 3
+                if (verifyBlackList(value, iteration)) {
+                    setBlacklist(value, iteration);
+                    if (verifyNamber(i, k, value, iteration)) {
+                        this.masbuf[iteration][i][k] = value;
+                        this.position[iteration] = new int[]{i,k};
+                        this.wag++;
+                        printMassiv(iteration);
+                        this.masbuf[++iteration] = this.masbuf[iteration-1];
+                        setMasFill(iteration);
+                        return;
+                    }
+                }
+            }
+        }
+        this.wag++;
+        setMasFill(--iteration);
+        return;
+    }
+
+    // Проход по варианту №3
+
+    public void  getPassThree(int i, int k, int iteration){
+
+        for (int value: this.number) {
+            if (value == 9) {
+                // Ветка 1
+                if (verifyBlackList(value, iteration)) {
+                    setBlacklist(value, iteration);
+                    if (verifyNamber(i, k, value, iteration)) {
+                        this.masbuf[iteration][i][k] = value;
+                        this.wag++;
+                        printMassiv(iteration);
+                        this.mas = this.masbuf[iteration];
+                        return ;
+                    }else {
+                        setToNullBlacklist(i, k, iteration);
+                        this.masbuf[iteration][i][k] = 0;
+                        this.masbuf[iteration-1][this.position[iteration-1][0]][this.position[iteration-1][1]] = 0;
+                        this.wag++;
+                        printMassiv(iteration);
+                        setMasFill(--iteration);
+                        return;
+                    }
+                } else {
+                    // Ветка 2
+                    setToNullBlacklist(i, k, iteration);
+                    this.masbuf[iteration][i][k] = 0;
+                    this.masbuf[iteration-1][this.position[iteration-1][0]][this.position[iteration-1][1]] = 0;
+                    this.wag++;
+                    printMassiv(iteration);
+                    setMasFill(--iteration);
+                    return;
+                }
+            } else {
+                // Ветка 3
+                if (verifyBlackList(value, iteration)) {
+                    setBlacklist(value, iteration);
+                    if (verifyNamber(i, k, value, iteration)) {
+                        this.masbuf[iteration][i][k] = value;
+                        this.wag++;
+                        printMassiv(iteration);
+                        this.mas = this.masbuf[iteration];
+                        setMasFill(iteration);
+                        return;
+                    }
+                }
+            }
+        }
+        this.wag++;
+        setMasFill(--iteration);
+        return;
+    }
 
 
 
@@ -310,7 +408,7 @@ return false;
     }
     // печать массива
     public void printMassiv(int iteration){
-        System.out.println("iteration: " + iteration + "wag: " + this.wag);
+        System.out.println("iteration: " + iteration + " wag: " + this.wag);
         for (int i : this.numbernull) {
             for (int k : this.numbernull)
                 System.out.print(this.masbuf[iteration][i][k] + "\t" );
@@ -356,7 +454,8 @@ return false;
         System.out.println("Введите исходные данные  судоку: ");
         for (int i: this.numbernull) {
             for (int k : this.numbernull) {
-                this.mas[i][k] = in.nextInt();
+                 this.mas[i][k] = in.nextInt();
+           //   this.mas[i][k] = 0;
                 setConstNamber(i,k);
             }
             this.printStroka(i);
