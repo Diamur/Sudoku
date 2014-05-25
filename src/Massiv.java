@@ -73,14 +73,12 @@ public class Massiv {
                 return;
             }
 
-        return;
     }
     // делаем сброс блэклиста итерации, который на два шага впереди текущего
 
     public void setToNullBlacklist(int i, int k, int iteration){
         for (int num : this.numbernull)
             if( verifyConstNamber(i,k) ) this.blacklist[iteration][num] = 0;
-        return;
     }
 
     // Проверяем цифру в черном списке по данной итерации
@@ -95,9 +93,9 @@ public class Massiv {
     // проверяем выбранную цифру в строке столбце и блоке
 
     public boolean verifyNamber(int ind,int kin,int value,int iteration){
-        return verifyNamberLine(ind, value, iteration) == true
-                && verifyNabmerColumn(kin, value, iteration) == true
-                && verifyNabmerBlok(ind, kin, value, iteration) == true;
+        return verifyNamberLine(ind, value, iteration)
+                && verifyNabmerColumn(kin, value, iteration)
+                && verifyNabmerBlok(ind, kin, value, iteration);
     }
 
     // проверяем выбранную цифру в строке
@@ -204,7 +202,6 @@ public class Massiv {
 
                         }else getPassTwo(i,k,iteration);                      // Проход по 2 варианту
 
-        return;
     }
 //---------------------------------------------------------------------------------
 
@@ -340,7 +337,6 @@ public class Massiv {
         }
         this.wag++;
         setMasFill(--iteration);
-        return;
     }
 
     // Проход по варианту №3
@@ -394,7 +390,6 @@ public class Massiv {
         }
         this.wag++;
         setMasFill(--iteration);
-        return;
     }
 
 
@@ -435,7 +430,6 @@ public class Massiv {
             this.step++;
         }
 
-        return;
     }
     // Проверяем константу по индексу
 
